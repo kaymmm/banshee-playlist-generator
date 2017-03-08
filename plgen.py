@@ -6,7 +6,7 @@ from urllib.parse import unquote
 
 home = expanduser('~')
 db_file = home + '/.config/banshee-1/banshee.db'
-path_repl = 'file://' + home
+path_repl = 'file://' + home + '/Music/'
 path_playlists = home + '/Playlists/'
 playlist_names = ['sync.m3u',
                   'rnb.m3u',
