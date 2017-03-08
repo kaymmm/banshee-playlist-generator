@@ -47,9 +47,9 @@ or_filters = [(),
               ("genre LIKE '%jazz%'",
                )]
 
-track_limit = (300, 150, 150)
+size_limits = (2000000000, 1500000000, 1500000000)
 
-db_cmd_base = "SELECT Name, Title, Duration, Uri "\
+db_cmd_base = "SELECT Name, Title, Duration, Uri, FileSize "\
     + "FROM CoreTracks "\
     + "LEFT JOIN CoreArtists "\
     + "WHERE "\
@@ -72,19 +72,21 @@ for j, playlist in enumerate(playlist_names):
     if db_or_cmd:
         db_or_cmd += ") "
     db_sub_cmd = db_and_cmd + date_filter + db_or_cmd
-    db_sub_cmd += " ORDER BY RANDOM() "
-    db_sub_cmd += "LIMIT " + str(track_limit[j])
+    db_sub_cmd += " ORDER BY RANDOM()"
     db_cmd = db_cmd_base + db_sub_cmd + ");"
 
     c.execute(db_cmd)
 
+    file_size_sum = 0.0
     f = open(path_playlists + playlist_names[j], 'w')
     print("#EXTM3U", file=f)
-    for artist, title, duration, uri in c:
+    (artist, title, duration, uri, file_size) = c.fetchone()
+    while (uri is not None) and (file_size_sum + file_size < size_limits[j]):
+        file_size_sum += file_size
         print("#EXTINF:" + str(int(duration/1000))
               + "," + artist + " - " + title, file=f)
-        # print(unquote(uri.replace(path_repl, '')))
         print(unquote(uri.replace(path_repl, '')), file=f)
+        (artist, title, duration, uri, file_size) = c.fetchone()
     f.close()
 
 # :set ts=8 et sw=4 sts=4
