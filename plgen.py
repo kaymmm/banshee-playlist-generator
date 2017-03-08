@@ -52,9 +52,8 @@ size_limits = (2000000000, 1500000000, 1500000000)
 db_cmd_base = "SELECT Name, Title, Duration, Uri, FileSize "\
     + "FROM CoreTracks "\
     + "LEFT JOIN CoreArtists "\
-    + "WHERE "\
-    + "CoreTracks.ArtistID=CoreArtists.ArtistID "\
-    + "AND TrackID in ("\
+    + "ON CoreTracks.ArtistID=CoreArtists.ArtistID "\
+    + "WHERE TrackID in ("\
     + "SELECT TrackID FROM CoreTracks WHERE "
 
 db = sqlite3.connect(db_file)
@@ -72,8 +71,7 @@ for j, playlist in enumerate(playlist_names):
     if db_or_cmd:
         db_or_cmd += ") "
     db_sub_cmd = db_and_cmd + date_filter + db_or_cmd
-    db_sub_cmd += " ORDER BY RANDOM()"
-    db_cmd = db_cmd_base + db_sub_cmd + ");"
+    db_cmd = db_cmd_base + db_sub_cmd + ") ORDER BY RANDOM();"
 
     c.execute(db_cmd)
 
